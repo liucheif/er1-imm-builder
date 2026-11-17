@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<!-- AirPrint / Bonjour 广播，让 iOS、iPadOS、macOS 自动发现本机 CUPS 打印机 -->
+<service-group>
+  <name replace-wildcards="yes">ER1 打印机</name>
+  <service>
+    <type>_ipp._tcp</type>
+    <subtype>_universal._sub._ipp._tcp</subtype>
+    <port>631</port>
+    <txt-record>txtvers=1</txt-record>
+    <txt-record>qtotal=1</txt-record>
+    <txt-record>rp=printers/ER1</txt-record>
+    <txt-record>ty=ER1 AirPrint</txt-record>
+    <txt-record>product=(Generic PostScript Printer)</txt-record>
+    <txt-record>note=ER1 AirPrint</txt-record>
+    <txt-record>pdl=application/pdf,image/jpeg,image/urf</txt-record>
+    <txt-record>adminurl=http://192.168.10.1:631/printers/ER1</txt-record>
+    <txt-record>URF=DM3</txt-record>
+    <txt-record>UUID=e5f3a9c1-7b42-4d18-9c6e-1a2b3c4d5e6f</txt-record>
+  </service>
+</service-group>
