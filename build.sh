@@ -395,6 +395,22 @@ patch_rust_llvm() {
     fi
 }
 
+vendor_libffi() {
+    # immortalwrt 上游删除了 package/libs/libffi，但 python3 强制 --with-system-ffi
+    # 且 lua-ffi/ruby 等也依赖它，缺失时 _ctypes 编不过（ffi.h not found）。
+    local src="$BASE_PATH/wrt_core/vendor/libffi"
+    local dst="$BASE_PATH/../$BUILD_DIR/package/libs/libffi"
+
+    if [ ! -f "$src/Makefile" ]; then
+        echo "libffi 内置包缺失，跳过"
+        return 0
+    fi
+    mkdir -p "$dst/patches"
+    cp -f "$src/Makefile" "$dst/Makefile"
+    cp -f "$src"/patches/*.patch "$dst/patches/" 2>/dev/null || true
+    echo "已内置 libffi 包到 package/libs/libffi（供 python3、lua-ffi 等使用）"
+}
+
 remove_uhttpd_dependency() {
     local config_path="$BASE_PATH/../$BUILD_DIR/.config"
     local luci_makefile_path="$BASE_PATH/../$BUILD_DIR/feeds/luci/collections/luci/Makefile"
@@ -457,6 +473,7 @@ print_config_fragment_summary
 remove_uhttpd_dependency
 inject_airprint_service
 patch_rust_llvm
+vendor_libffi
 
 cd "$BASE_PATH/../$BUILD_DIR"
 make defconfig
