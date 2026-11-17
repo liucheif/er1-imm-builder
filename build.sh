@@ -377,7 +377,7 @@ run_container_build() {
 
 inject_airprint_service() {
     local target="$BASE_PATH/../$BUILD_DIR/package/base-files/files/etc/avahi/services"
-    local src="$BASE_PATH/wrt_core/assets/printer.service"
+    local src="$BASE_PATH/assets/printer.service"
     if [ -f "$src" ]; then
         mkdir -p "$target" || return 0
         cp -f "$src" "$target/printer.service" && \
@@ -398,16 +398,20 @@ patch_rust_llvm() {
 vendor_libffi() {
     # immortalwrt 上游删除了 package/libs/libffi，但 python3 强制 --with-system-ffi
     # 且 lua-ffi/ruby 等也依赖它，缺失时 _ctypes 编不过（ffi.h not found）。
-    local src="$BASE_PATH/wrt_core/vendor/libffi"
+    local src="$BASE_PATH/vendor/libffi"
     local dst="$BASE_PATH/../$BUILD_DIR/package/libs/libffi"
 
     if [ ! -f "$src/Makefile" ]; then
-        echo "libffi 内置包缺失，跳过"
-        return 0
+        echo "libffi 内置包缺失（$src/Makefile），终止构建"
+        exit 1
     fi
     mkdir -p "$dst/patches"
     cp -f "$src/Makefile" "$dst/Makefile"
     cp -f "$src"/patches/*.patch "$dst/patches/" 2>/dev/null || true
+    if [ ! -f "$dst/Makefile" ]; then
+        echo "libffi 注入失败：$dst/Makefile 不存在"
+        exit 1
+    fi
     echo "已内置 libffi 包到 package/libs/libffi（供 python3、lua-ffi 等使用）"
 }
 
